@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/widgets/app_card.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/enums/role_collecteur.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../../../../router/app_router.dart';
-import '../providers/session_provider.dart';
+import '../providers/auth_provider.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -14,64 +18,223 @@ class AuthScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
-  final phone = TextEditingController(text: '+22901');
-  AppRole role = AppRole.agent;
+  final _telCtrl = TextEditingController();
+  bool _telValide = false;
+
+  @override
+  void dispose() {
+    _telCtrl.dispose();
+    super.dispose();
+  }
+
+  void _continuer() {
+    if (!_telValide) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Numéro invalide (10 chiffres après +229)')),
+      );
+      return;
+    }
+    final tel = '+229${_telCtrl.text.replaceAll(' ', '')}';
+    ref.read(authTelephoneProvider.notifier).state = tel;
+    context.push(Routes.pin);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final role = ref.watch(authRoleDemoProvider);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Connexion collecteur')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const SecurityNoticeCard(),
-          const SizedBox(height: 18),
-          TextField(
-            controller: phone,
-            keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-              labelText: 'Telephone',
-              hintText: '+2290141193597',
-              prefixIcon: Icon(Icons.phone_android),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left_rounded),
+          onPressed: () => context.go(Routes.onboarding),
+        ),
+        title: const Text('Connexion'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Accès collecteur',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          SegmentedButton<AppRole>(
-            segments: AppRole.values
-                .map((r) => ButtonSegment(value: r, label: Text(r.label)))
-                .toList(),
-            selected: {role},
-            onSelectionChanged: (value) => setState(() => role = value.first),
-          ),
-          const SizedBox(height: 22),
-          FilledButton.icon(
-            icon: const Icon(Icons.lock),
-            label: const Text('Continuer avec PIN'),
-            onPressed: () {
-              ref.read(sessionProvider.notifier).definirBrouillon(
-                    telephone: phone.text.trim(),
-                    role: role,
-                  );
-              context.go(Routes.pin);
-            },
-          ),
-        ],
+            const SizedBox(height: 8),
+            const Text(
+              'Authentification PIN et biométrie. Le rôle est confirmé par le serveur après connexion.',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                color: AppColors.muted,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppPhoneField(
+              controller: _telCtrl,
+              onChanged: (v) => setState(
+                () => _telValide = Validators.telephoneBenin(v),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppColors.bordure),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x120F172A),
+                    blurRadius: 14,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'RÔLE DE DÉMONSTRATION',
+                    style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...RoleCollecteur.values.map((r) => _RoleTile(
+                        role: r,
+                        selected: role == r,
+                        onTap: () => ref
+                            .read(authRoleDemoProvider.notifier)
+                            .state = r,
+                      )),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppButton(
+              label: 'SE CONNECTER',
+              onPressed: _continuer,
+            ),
+            const SizedBox(height: 12),
+            AppButton(
+              label: 'INSCRIPTION / KYC',
+              variant: AppButtonVariant.outline,
+              onPressed: () => context.push(Routes.inscription),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: () => context.push(Routes.continuerInscription),
+                child: const Text(
+                  'Inscription commencée ? Continuer avec OTP',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            Center(
+              child: Text(
+                'Nouveau collecteur ? Créez votre compte Agent ou Indépendant.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.caption,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class SecurityNoticeCard extends StatelessWidget {
-  const SecurityNoticeCard({super.key});
+class _RoleTile extends StatelessWidget {
+  final RoleCollecteur role;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _RoleTile({
+    required this.role,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const AppCard(
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Icon(Icons.shield),
-        title: Text('Regles securite terrain'),
-        subtitle: Text('OTP client masque, PIN jamais stocke en clair, biometrie obligatoire.'),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: selected ? AppColors.primaryLight : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: selected ? AppColors.primary : AppColors.bordure,
+                width: selected ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        role.label,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        role == RoleCollecteur.superviseur
+                            ? 'Supervision zone — sans collecte'
+                            : 'Collecte terrain Mobile Money',
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          color: AppColors.muted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    role.badge,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,26 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
 import '../constants/app_constants.dart';
 
 class SecureStorage {
-  SecureStorage._();
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
-
-  static Future<String?> lireAccessToken() =>
-      _storage.read(key: AppConstants.keyAccessToken);
-
-  static Future<String?> lireRefreshToken() =>
-      _storage.read(key: AppConstants.keyRefreshToken);
-
-  static Future<String?> lireUserRole() =>
-      _storage.read(key: AppConstants.keyUserRole);
-
-  static Future<String?> lireUserPhone() =>
-      _storage.read(key: AppConstants.keyUserPhone);
 
   static Future<void> sauvegarderTokens({
     required String accessToken,
@@ -31,6 +16,18 @@ class SecureStorage {
       _storage.write(key: AppConstants.keyRefreshToken, value: refreshToken),
     ]);
   }
+
+  static Future<String?> lireAccessToken() =>
+      _storage.read(key: AppConstants.keyAccessToken);
+
+  static Future<String?> lireRefreshToken() =>
+      _storage.read(key: AppConstants.keyRefreshToken);
+
+  static Future<void> sauvegarderTokenOnboarding(String token) =>
+      _storage.write(key: AppConstants.keyOnboardingToken, value: token);
+
+  static Future<String?> lireTokenOnboarding() =>
+      _storage.read(key: AppConstants.keyOnboardingToken);
 
   static Future<void> sauvegarderUtilisateur({
     required String id,
@@ -46,30 +43,24 @@ class SecureStorage {
     ]);
   }
 
-  static Future<void> sauvegarderSessionDemo({
-    required String accessToken,
-    required String refreshToken,
-    required String role,
-    required String telephone,
-  }) async {
-    await sauvegarderTokens(
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    );
-    await sauvegarderUtilisateur(
-      id: 'demo-collecteur',
-      telephone: telephone,
-      nom: 'Collecteur terrain',
-      role: role,
-    );
-  }
+  static Future<String?> lireUserId() =>
+      _storage.read(key: AppConstants.keyUserId);
+
+  static Future<String?> lireUserRole() =>
+      _storage.read(key: AppConstants.keyUserRole);
+
+  static Future<String?> lireUserName() =>
+      _storage.read(key: AppConstants.keyUserName);
+
+  static Future<String?> lireUserPhone() =>
+      _storage.read(key: AppConstants.keyUserPhone);
 
   static Future<bool> estConnecte() async {
     final token = await lireAccessToken();
     if (token == null || token.isEmpty) return false;
-    final parts = token.split('.');
-    if (parts.length != 3) return true;
     try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
       final payload = jsonDecode(
         utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
       ) as Map<String, dynamic>;
@@ -78,9 +69,21 @@ class SecureStorage {
       return DateTime.fromMillisecondsSinceEpoch(exp * 1000)
           .isAfter(DateTime.now());
     } catch (_) {
-      return true;
+      return false;
     }
   }
 
-  static Future<void> effacerSession() => _storage.deleteAll();
+  static Future<void> marquerOnboardingVu() =>
+      _storage.write(key: AppConstants.keyOnboardingVu, value: 'true');
+
+  static Future<bool> onboardingVu() async =>
+      (await _storage.read(key: AppConstants.keyOnboardingVu)) == 'true';
+
+  static Future<void> effacerSession() async {
+    final onboarding = await _storage.read(key: AppConstants.keyOnboardingVu);
+    await _storage.deleteAll();
+    if (onboarding != null) {
+      await _storage.write(key: AppConstants.keyOnboardingVu, value: onboarding);
+    }
+  }
 }
