@@ -82,6 +82,35 @@ final inscriptionProvider =
   return InscriptionNotifier(ref.watch(authRepositoryProvider));
 });
 
+class RenvoyerOtpNotifier extends StateNotifier<AuthState> {
+  final AuthRepository _repo;
+  RenvoyerOtpNotifier(this._repo) : super(const AuthState());
+
+  Future<Map<String, String?>?> renvoyer({required String telephone}) async {
+    state = state.copyWith(loading: true, erreur: null);
+    try {
+      final result = await _repo.renvoyerOtpInscription(telephone: telephone);
+      state = AuthState(
+        loading: false,
+        succes: true,
+        otpTest: result['otpTest'],
+      );
+      return result;
+    } on DioException catch (e) {
+      state = state.copyWith(loading: false, erreur: extraireMessageErreur(e));
+      return null;
+    } catch (_) {
+      state = state.copyWith(loading: false, erreur: 'Erreur inattendue.');
+      return null;
+    }
+  }
+}
+
+final renvoyerOtpProvider =
+    StateNotifierProvider.autoDispose<RenvoyerOtpNotifier, AuthState>((ref) {
+  return RenvoyerOtpNotifier(ref.watch(authRepositoryProvider));
+});
+
 class OtpNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repo;
   OtpNotifier(this._repo) : super(const AuthState());

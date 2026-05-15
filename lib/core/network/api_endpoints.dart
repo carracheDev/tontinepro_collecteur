@@ -1,5 +1,6 @@
 abstract class ApiEndpoints {
   static const String inscription = '/auth/inscription';
+  static const String renvoyerOtpInscription = '/auth/renvoyer-otp-inscription';
   static const String verifierOtp = '/auth/verifier-otp';
   static const String creerPin = '/auth/creer-pin';
   static const String connexion = '/auth/connexion';

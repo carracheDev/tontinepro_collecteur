@@ -7,6 +7,25 @@ import '../../../../core/storage/secure_storage.dart';
 class AuthRepository {
   final Dio _dio = DioClient.instance;
 
+  /// Renvoie un OTP si le compte existe sans PIN (inscription inachevée).
+  Future<Map<String, String?>> renvoyerOtpInscription({
+    required String telephone,
+  }) async {
+    final resp = await _dio.post(
+      ApiEndpoints.renvoyerOtpInscription,
+      data: {'telephone': telephone},
+    );
+    final donnees = resp.donnees;
+    final otpTest = donnees['otpTest'];
+    return {
+      'otpId': donnees['otpId']?.toString(),
+      'otpTest': otpTest?.toString(),
+      'nom': donnees['nom']?.toString(),
+      'role': donnees['role']?.toString(),
+      'reprise': donnees['reprise']?.toString(),
+    };
+  }
+
   Future<Map<String, String?>> inscription({
     required String telephone,
     required String nom,

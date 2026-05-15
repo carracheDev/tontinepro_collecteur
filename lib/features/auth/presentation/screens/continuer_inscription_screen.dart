@@ -9,7 +9,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../router/app_router.dart';
 import '../providers/auth_provider.dart';
 
-/// Reprend une inscription interrompue (compte EN_ATTENTE sans PIN).
+/// Reprend une inscription interrompue (compte sans PIN).
 class ContinuerInscriptionScreen extends ConsumerStatefulWidget {
   const ContinuerInscriptionScreen({super.key});
 
@@ -26,39 +26,59 @@ class _ContinuerInscriptionScreenState
   Future<void> _renvoyerOtp() async {
     if (!_telValide) return;
     final tel = '+229${_telCtrl.text.replaceAll(' ', '')}';
-    final role = ref.read(inscriptionRoleProvider);
 
-    final ok = await ref.read(inscriptionProvider.notifier).inscrire(
-          telephone: tel,
-          nom: 'Collecteur',
-          role: role.apiValue,
-        );
+    final result =
+        await ref.read(renvoyerOtpProvider.notifier).renvoyer(telephone: tel);
 
     if (!mounted) return;
 
-    if (ok) {
-      final otpTest = ref.read(inscriptionProvider).otpTest;
+    if (result != null) {
+      final otpTest = result['otpTest'] ?? ref.read(renvoyerOtpProvider).otpTest;
+      final nom = result['nom'] ?? 'Collecteur';
+      final role = result['role'] ?? 'AGENT';
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Nouveau code OTP envoyé. Vérifiez puis créez votre PIN.',
-          ),
+          content: Text('Nouveau code OTP envoyé.'),
           backgroundColor: AppColors.primary,
         ),
       );
+
       context.go(Routes.otp, extra: {
         'telephone': tel,
-        'nom': 'Collecteur',
-        'role': role.apiValue,
+        'nom': nom,
+        'role': role,
         'otpTest': otpTest,
       });
+      return;
+    }
+
+    final err = ref.read(renvoyerOtpProvider).erreur ?? '';
+    if (err.contains('déjà un PIN') ||
+        err.contains('déjà actif') ||
+        err.contains('Connectez-vous')) {
+      _afficherDialogueDejaActif();
+    } else if (err.contains('Aucun compte')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(err),
+          action: SnackBarAction(
+            label: 'Inscription',
+            onPressed: () => context.push(Routes.inscription),
+          ),
+        ),
+      );
     } else {
-      final err = ref.read(inscriptionProvider).erreur ?? '';
-      if (err.contains('déjà actif') || err.contains('Connectez-vous')) {
-        _afficherDialogueDejaActif();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            err.isNotEmpty
+                ? err
+                : 'Impossible de renvoyer le code. Vérifiez que le backend est à jour.',
+          ),
+          duration: const Duration(seconds: 6),
+        ),
+      );
     }
   }
 
@@ -92,7 +112,7 @@ class _ContinuerInscriptionScreenState
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(inscriptionProvider);
+    final state = ref.watch(renvoyerOtpProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -122,8 +142,8 @@ class _ContinuerInscriptionScreenState
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Vous avez commencé l\'inscription sans terminer l\'OTP ou le PIN. '
-                      'Entrez votre numéro : nous vous renvoyons un code pour finaliser.',
+                      'Entrez le même numéro qu\'à l\'inscription. '
+                      'Un nouveau code OTP sera généré si votre PIN n\'est pas encore créé.',
                       style: AppTextStyles.caption.copyWith(height: 1.45),
                     ),
                   ),
