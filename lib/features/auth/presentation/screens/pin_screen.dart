@@ -77,10 +77,10 @@ class _PinScreenState extends ConsumerState<PinScreen>
     });
     if (ok) {
       await BiometrieService.activer(true);
-      final tel = await SecureStorage.lireUserPhone();
-      if (tel != null && mounted) {
-        context.go(Routes.homeDefaut);
-      }
+      final roleApi = await SecureStorage.lireUserRole();
+      if (!mounted) return;
+      final role = RoleCollecteur.depuisApi(roleApi);
+      context.go(routeAccueilPourRole(role));
     }
   }
 
