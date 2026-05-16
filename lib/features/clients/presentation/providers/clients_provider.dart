@@ -12,25 +12,40 @@ final ficheClientProvider = FutureProvider.autoDispose
   return ref.read(clientsRepositoryProvider).ficheTerrain(clientId);
 });
 
-enum FiltreClients { tous, aVisiter, visites, kyc }
+enum FiltreClients { tous, aVisiter, visites, eligibleCredit, aRelancer }
 
 final filtreClientsProvider =
     StateProvider.autoDispose<FiltreClients>((ref) => FiltreClients.tous);
+
+final rechercheClientsProvider =
+    StateProvider.autoDispose<String>((ref) => '');
 
 final clientsFiltresProvider =
     Provider.autoDispose<AsyncValue<List<ClientResume>>>((ref) {
   final async = ref.watch(clientsDuJourProvider);
   final filtre = ref.watch(filtreClientsProvider);
+  final recherche = ref.watch(rechercheClientsProvider).toLowerCase().trim();
   return async.whenData((data) {
+    var liste = data.clients;
     switch (filtre) {
       case FiltreClients.aVisiter:
-        return data.clients.where((c) => !c.dejaVisite).toList();
+        liste = liste.where((c) => !c.dejaVisite).toList();
       case FiltreClients.visites:
-        return data.clients.where((c) => c.dejaVisite).toList();
-      case FiltreClients.kyc:
-        return data.clients.where((c) => c.kycVerifie).toList();
+        liste = liste.where((c) => c.dejaVisite).toList();
+      case FiltreClients.eligibleCredit:
+        liste = liste.where((c) => c.score >= 60).toList();
+      case FiltreClients.aRelancer:
+        liste = liste.where((c) => !c.dejaVisite).toList();
       case FiltreClients.tous:
-        return data.clients;
+        break;
     }
+    if (recherche.isNotEmpty) {
+      liste = liste
+          .where((c) =>
+              c.nom.toLowerCase().contains(recherche) ||
+              c.telephone.contains(recherche))
+          .toList();
+    }
+    return liste;
   });
 });

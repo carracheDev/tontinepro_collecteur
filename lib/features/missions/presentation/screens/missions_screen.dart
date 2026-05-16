@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/services/location_service.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/home_header.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/loading_skeleton.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../router/app_router.dart';
 import '../../../clients/data/repositories/clients_repository.dart';
@@ -21,74 +23,184 @@ class MissionsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.fond,
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.primary,
-          onRefresh: () async {
-            ref.invalidate(clientsDuJourProvider);
-            await ref.read(clientsDuJourProvider.future);
-          },
-          child: async.when(
-            loading: () => const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+      appBar: AppBar(
+        title: const Text('Missions du jour'),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
+        actions: [
+          async.maybeWhen(
+            data: (result) => IconButton(
+              icon: const Icon(Icons.map_outlined),
+              onPressed: () =>
+                  context.push(Routes.carteTerrain, extra: result.clients),
             ),
-            error: (e, _) => ListView(
+            orElse: () => const SizedBox.shrink(),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          ref.invalidate(clientsDuJourProvider);
+          await ref.read(clientsDuJourProvider.future);
+        },
+        child: async.when(
+          loading: () => SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
               children: [
-                const HomeHeader(sousTitre: 'Missions du jour'),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(extraireMessageErreur(e)),
-                ),
+                const SkeletonClientCard(),
+                const SizedBox(height: 16),
+                ...List.generate(4, (_) => const Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: SkeletonClientCard(),
+                )),
               ],
             ),
-            data: (result) {
-              final progression = result.stats.total == 0
-                  ? 0.0
-                  : result.stats.visites / result.stats.total;
-              final primeEstimee = result.stats.visites * 500;
+          ),
+          error: (e, _) => EmptyStateWidget(
+            icone: Icons.error_outline,
+            titre: 'Impossible de charger',
+            sousTitre: extraireMessageErreur(e),
+            labelBouton: 'Réessayer',
+            onAction: () => ref.invalidate(clientsDuJourProvider),
+          ),
+          data: (result) {
+            final progression = result.stats.total == 0
+                ? 0.0
+                : result.stats.visites / result.stats.total;
+            final primeEstimee = result.stats.visites * 500;
+            final restants = result.stats.total - result.stats.visites;
+            final pct = (progression * 100).round();
 
-              return CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: HomeHeader(
-                      sousTitre:
-                          '${result.stats.restantes} visite(s) restante(s) aujourd\'hui',
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.gradientHero,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: AppColors.bordure),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('Progression du jour', style: AppTextStyles.titre3),
-                            const SizedBox(height: 10),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: LinearProgressIndicator(
-                                value: progression,
-                                minHeight: 10,
-                                backgroundColor: AppColors.primaryLight,
-                                color: AppColors.primary,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Missions du jour',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: Colors.white60,
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: '${result.stats.visites}',
+                                        style: const TextStyle(
+                                          fontFamily: 'Nunito',
+                                          fontSize: 44,
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                          height: 1,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: '/${result.stats.total}',
+                                        style: const TextStyle(
+                                          fontFamily: 'Nunito',
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white60,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  'visites effectuées',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: Colors.white54,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${result.stats.visites}/${result.stats.total} visites — Prime estimée ${primeEstimee} FCFA',
-                              style: AppTextStyles.caption,
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(99),
+                                  ),
+                                  child: Text(
+                                    '$pct%',
+                                    style: const TextStyle(
+                                      fontFamily: 'Nunito',
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '$restants restant${restants > 1 ? 's' : ''}',
+                                  style: const TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 11,
+                                    color: Colors.white54,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(99),
+                          child: LinearProgressIndicator(
+                            value: progression,
+                            minHeight: 8,
+                            backgroundColor: Colors.white.withValues(alpha: 0.2),
+                            valueColor: const AlwaysStoppedAnimation(
+                              AppColors.primaryVif,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.monetization_on_outlined,
+                              size: 14,
+                              color: Colors.white70,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Prime estimée : ${Formatters.montant(primeEstimee)}',
+                              style: AppTextStyles.caption.copyWith(
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
+                ),
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
                     sliver: SliverList.separated(
@@ -121,7 +233,6 @@ class MissionsScreen extends ConsumerWidget {
             },
           ),
         ),
-      ),
     );
   }
 

@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/home_header.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/loading_skeleton.dart';
 import '../../data/repositories/notifications_repository.dart';
 
 final notificationsProvider = FutureProvider.autoDispose((ref) async {
@@ -39,42 +40,49 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen>
 
     return Scaffold(
       backgroundColor: AppColors.fond,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const HomeHeader(sousTitre: 'Alertes et notifications'),
-            TabBar(
-              controller: _tabs,
-              labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.muted,
-              indicatorColor: AppColors.primary,
-              tabs: const [
-                Tab(text: 'Mes alertes'),
-                Tab(text: 'SMS clients'),
-              ],
-            ),
-            Expanded(
-              child: async.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                ),
-                error: (e, _) => Center(child: Text(e.toString())),
-                data: (items) => TabBarView(
-                  controller: _tabs,
-                  children: [
-                    _ListeNotifs(
-                      items: items.where((n) => !n.estSmsClient).toList(),
-                    ),
-                    _ListeSms(
-                      items: items.where((n) => n.estSmsClient).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        title: const Text('Alertes'),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
+        bottom: TabBar(
+          controller: _tabs,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.muted,
+          indicatorColor: AppColors.primary,
+          tabs: const [
+            Tab(text: 'Mes alertes'),
+            Tab(text: 'SMS clients'),
           ],
         ),
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          ref.invalidate(notificationsProvider);
+          await ref.read(notificationsProvider.future);
+        },
+        child: async.when(
+          loading: () => ListView.separated(
+          padding: const EdgeInsets.all(20),
+          itemCount: 5,
+          separatorBuilder: (_, _) => const SizedBox(height: 10),
+          itemBuilder: (_, _) => const LoadingSkeleton(height: 72, radius: 16),
+        ),
+        error: (e, _) => EmptyStateWidget(
+          icone: Icons.notifications_off_outlined,
+          titre: 'Impossible de charger',
+          sousTitre: e.toString(),
+          labelBouton: 'Réessayer',
+          onAction: () => ref.invalidate(notificationsProvider),
+        ),
+        data: (items) => TabBarView(
+          controller: _tabs,
+          children: [
+            _ListeNotifs(items: items.where((n) => !n.estSmsClient).toList()),
+            _ListeSms(items: items.where((n) => n.estSmsClient).toList()),
+          ],
+        ),
+      ),
       ),
     );
   }

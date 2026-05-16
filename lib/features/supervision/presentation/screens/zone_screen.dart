@@ -4,7 +4,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/home_header.dart';
 import '../../data/repositories/supervision_repository.dart';
 
 final zoneKpisProvider = FutureProvider.autoDispose((ref) async {
@@ -25,18 +24,21 @@ class ZoneScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.fond,
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.primary,
-          onRefresh: () async {
-            ref.invalidate(zoneKpisProvider);
-            ref.invalidate(zoneScoresProvider);
-          },
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 100),
-            children: [
-              const HomeHeader(sousTitre: 'Vue d\'ensemble de votre zone'),
-              Padding(
+      appBar: AppBar(
+        title: const Text('Ma Zone'),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          ref.invalidate(zoneKpisProvider);
+          ref.invalidate(zoneScoresProvider);
+        },
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 100),
+          children: [
+            Padding(
                 padding: const EdgeInsets.all(20),
                 child: kpisAsync.when(
                   data: (k) {
@@ -114,7 +116,6 @@ class ZoneScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

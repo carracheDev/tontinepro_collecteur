@@ -63,8 +63,8 @@ class _BiometrieScreenState extends State<BiometrieScreen>
       backgroundColor: AppColors.fond,
       appBar: AppBar(
         title: const Text('Vérification'),
-        backgroundColor: AppColors.primaryDark,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),

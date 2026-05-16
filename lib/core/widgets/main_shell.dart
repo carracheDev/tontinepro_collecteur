@@ -35,22 +35,24 @@ class MainShell extends ConsumerWidget {
     switch (role) {
       case RoleCollecteur.agent:
         return const [
-          _TabInfo(Routes.homeMissions, Icons.route_outlined, Icons.route, 'Missions'),
+          _TabInfo(Routes.home, Icons.home_outlined, Icons.home, 'Accueil'),
           _TabInfo(Routes.homeClients, Icons.people_outline, Icons.people, 'Clients'),
-          _TabInfo(Routes.homeCollecte, Icons.payments_outlined, Icons.payments, 'Collecte'),
           _TabInfo('__qr__', Icons.qr_code_scanner, Icons.qr_code_scanner, ''),
+          _TabInfo(Routes.homeMissions, Icons.route_outlined, Icons.route, 'Missions'),
+          _TabInfo(Routes.homeAlertes, Icons.notifications_outlined, Icons.notifications, 'Alertes'),
         ];
       case RoleCollecteur.independant:
         return const [
+          _TabInfo(Routes.home, Icons.home_outlined, Icons.home, 'Accueil'),
           _TabInfo(Routes.homeClients, Icons.people_outline, Icons.people, 'Clients'),
-          _TabInfo(Routes.homeCollecte, Icons.payments_outlined, Icons.payments, 'Collecte'),
-          _TabInfo(Routes.homeFinances, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, 'Finances'),
           _TabInfo('__qr__', Icons.qr_code_scanner, Icons.qr_code_scanner, ''),
+          _TabInfo(Routes.homeFinances, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, 'Finances'),
+          _TabInfo(Routes.homeAlertes, Icons.notifications_outlined, Icons.notifications, 'Alertes'),
         ];
       case RoleCollecteur.superviseur:
         return const [
-          _TabInfo(Routes.homeZone, Icons.map_outlined, Icons.map, 'Ma Zone'),
-          _TabInfo(Routes.homeAgents, Icons.groups_outlined, Icons.groups, 'Agents'),
+          _TabInfo(Routes.home, Icons.home_outlined, Icons.home, 'Accueil'),
+          _TabInfo(Routes.homeZone, Icons.radar, Icons.radar, 'Zone'),
           _TabInfo(Routes.homeLitiges, Icons.gavel_outlined, Icons.gavel, 'Litiges'),
           _TabInfo(Routes.homeAlertes, Icons.notifications_outlined, Icons.notifications, 'Alertes'),
         ];
@@ -70,8 +72,14 @@ class _BottomNav extends StatelessWidget {
   });
 
   int _indexActif() {
+    // Try exact match first, then prefix match (for sub-routes)
     for (var i = 0; i < tabs.length; i++) {
-      if (tabs[i].route != '__qr__' && location.startsWith(tabs[i].route)) {
+      final r = tabs[i].route;
+      if (r != '__qr__' && location == r) return i;
+    }
+    for (var i = 0; i < tabs.length; i++) {
+      final r = tabs[i].route;
+      if (r != '__qr__' && r != Routes.home && location.startsWith(r)) {
         return i;
       }
     }

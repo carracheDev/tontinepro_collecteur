@@ -28,14 +28,22 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profilAsync = ref.watch(profilCompletProvider);
     final qrAsync = ref.watch(monQrProvider);
-    final nom = ref.watch(sessionNomProvider).value ?? '';
+    // Nom depuis l'API (source unique de vérité) avec fallback SecureStorage
+    final nomSecure = ref.watch(sessionNomProvider).value ?? '';
+    final nom = profilAsync.value?['nom']?.toString() ?? nomSecure;
 
     return Scaffold(
       backgroundColor: AppColors.fond,
       appBar: AppBar(
         title: const Text('Mon profil'),
-        backgroundColor: AppColors.primaryDark,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push(Routes.parametres),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),

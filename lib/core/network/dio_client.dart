@@ -148,11 +148,18 @@ String extraireMessageErreur(Object e) {
         return 'Erreur serveur. Réessayez plus tard.';
     }
     if (e.type == DioExceptionType.connectionError) {
-      return 'Serveur injoignable. Vérifiez votre connexion.';
+      final url = e.requestOptions.baseUrl;
+      return 'Serveur injoignable ($url).\n'
+          'Vérifie que le backend tourne sur port 3000\n'
+          'et lance l\'app avec : bash run.sh';
     }
     if (e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.receiveTimeout) {
-      return 'Délai dépassé. Vérifiez votre réseau.';
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.sendTimeout) {
+      final url = e.requestOptions.baseUrl;
+      return 'Délai dépassé ($url).\n'
+          '→ Émulateur : backend sur localhost:3000 ?\n'
+          '→ Device réel : lance "bash run.sh" dans le dossier collecteur';
     }
   }
   return 'Une erreur inattendue est survenue.';

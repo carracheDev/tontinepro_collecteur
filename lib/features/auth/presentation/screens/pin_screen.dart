@@ -100,10 +100,11 @@ class _PinScreenState extends ConsumerState<PinScreen>
 
     if (ok) {
       if (!mounted) return;
+      // Rafraîchir TOUS les providers (nom, rôle, téléphone)
+      rafraichirSession(ref.invalidate);
       final roleApi = await SecureStorage.lireUserRole();
       final role = RoleCollecteur.depuisApi(roleApi) ??
           ref.read(authRoleDemoProvider);
-      ref.invalidate(sessionRoleProvider);
 
       if (!mounted) return;
       context.go(routeAccueilPourRole(role));

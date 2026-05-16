@@ -13,6 +13,7 @@ class EnrollSuccessScreen extends StatelessWidget {
     final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
     final nom = extra?['nom']?.toString() ?? 'Client';
     final id = extra?['identifiantTerrain']?.toString() ?? '';
+    final codeQr = extra?['codeQr']?.toString() ?? extra?['codeQR']?.toString();
 
     return Scaffold(
       backgroundColor: AppColors.fond,
@@ -36,6 +37,21 @@ class EnrollSuccessScreen extends StatelessWidget {
                 label: 'Voir codes USSD',
                 onPressed: () => context.push(Routes.ussdGuide),
               ),
+              if (codeQr != null && codeQr.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                AppButton(
+                  label: 'QR papier',
+                  variant: AppButtonVariant.outline,
+                  onPressed: () => context.push(
+                    Routes.qrPapier,
+                    extra: {
+                      'nom': nom,
+                      'codeQr': codeQr,
+                      'identifiantTerrain': id,
+                    },
+                  ),
+                ),
+              ],
               const SizedBox(height: 10),
               AppButton(
                 label: 'Retour clients',

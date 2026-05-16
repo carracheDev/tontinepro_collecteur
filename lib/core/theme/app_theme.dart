@@ -20,12 +20,8 @@ class AppTheme {
         foregroundColor: AppColors.texte,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.poppins(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: AppColors.texte,
-        ),
         surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: AppColors.texte),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

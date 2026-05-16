@@ -6,7 +6,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../../core/widgets/home_header.dart';
 import '../../../../router/app_router.dart';
 import '../../../clients/presentation/providers/clients_provider.dart';
 import '../providers/collecte_provider.dart';
@@ -48,16 +47,17 @@ class _CollecteScreenState extends ConsumerState<CollecteScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.fond,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const HomeHeader(
-                sousTitre: 'Cotisation Mobile Money assistée',
-              ),
-              Padding(
+      appBar: AppBar(
+        title: const Text('Collecte terrain'),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -148,7 +148,6 @@ class _CollecteScreenState extends ConsumerState<CollecteScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

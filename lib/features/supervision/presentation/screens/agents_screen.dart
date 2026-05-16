@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/home_header.dart';
 import '../../data/repositories/supervision_repository.dart';
 
 final agentsPerformanceProvider = FutureProvider.autoDispose((ref) async {
@@ -19,15 +18,18 @@ class AgentsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.fond,
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.primary,
-          onRefresh: () => ref.refresh(agentsPerformanceProvider.future),
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 100),
-            children: [
-              const HomeHeader(sousTitre: 'Performance des agents terrain'),
-              Padding(
+      appBar: AppBar(
+        title: const Text('Agents'),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () => ref.refresh(agentsPerformanceProvider.future),
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 100),
+          children: [
+            Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: async.when(
                   loading: () => const Center(
@@ -89,7 +91,6 @@ class AgentsScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

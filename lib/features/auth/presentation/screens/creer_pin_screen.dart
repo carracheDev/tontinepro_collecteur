@@ -58,7 +58,8 @@ class _CreerPinScreenState extends ConsumerState<CreerPinScreen>
     final ok = await ref.read(creerPinProvider.notifier).creer(pin: _pin1.join());
     if (!mounted) return;
     if (ok) {
-      ref.invalidate(sessionRoleProvider);
+      // Rafraîchir TOUS les providers de session (nom + rôle + téléphone)
+      rafraichirSession(ref.invalidate);
       final role =
           RoleCollecteur.depuisApi(await SecureStorage.lireUserRole());
       if (!mounted) return;

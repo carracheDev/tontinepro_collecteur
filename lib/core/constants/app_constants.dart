@@ -17,6 +17,6 @@ abstract class AppConstants {
 
   static const int longueurPin = 4;
   static const int longueurOtp = 6;
-  static const int timeoutRequete = 30;
+  static const int timeoutRequete = 60; // 60s — réseau local peut être lent au démarrage
   static const int limitePage = 20;
 }

@@ -16,7 +16,8 @@ abstract class ApiEndpoints {
   static const String clientsDuJour = '/collecteur/clients-du-jour';
   static const String carteClients = '/collecteur/carte-clients';
   static const String mesPresences = '/collecteur/mes-presences';
-  static const String dashboardIndependant = '/collecteur/dashboard-independant';
+  static const String dashboardIndependant =
+      '/collecteur/dashboard-independant';
   static String contactWhatsApp(String clientId) =>
       '/collecteur/contact-whatsapp/$clientId';
 
@@ -27,10 +28,15 @@ abstract class ApiEndpoints {
       '/operations-assistees/clients/$clientId/fiche-terrain';
   static const String initierCotisation =
       '/operations-assistees/cotisations/initier';
-  static const String initierRetrait =
-      '/operations-assistees/retraits/initier';
+  static const String initierRetrait = '/operations-assistees/retraits/initier';
   static String statutOperation(String id) =>
       '/operations-assistees/$id/statut';
+
+  // Micro-crédits
+  static const String demanderMicroCredit = '/micro-credits/demander';
+
+  // Tontines
+  static const String mesTontines = '/tontines/mes-tontines';
 
   // Commissions
   static const String soldeCommission = '/commissions/mon-solde';

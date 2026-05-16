@@ -21,8 +21,8 @@ class UssdGuideScreen extends StatelessWidget {
       backgroundColor: AppColors.fond,
       appBar: AppBar(
         title: const Text('Codes USSD'),
-        backgroundColor: AppColors.primaryDark,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.texte,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
