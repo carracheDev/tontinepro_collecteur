@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/enums/role_collecteur.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/services/fcm_service.dart';
 import '../../data/repositories/auth_repository.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -176,6 +177,8 @@ class ConnexionNotifier extends StateNotifier<AuthState> {
     try {
       await _repo.connexion(telephone: telephone, pin: pin);
       state = state.copyWith(loading: false, succes: true);
+      // Enregistrement FCM token en arrière-plan (fire & forget)
+      FcmService.instance.enregistrerTokenBackend();
       return true;
     } on DioException catch (e) {
       state = state.copyWith(loading: false, erreur: extraireMessageErreur(e));

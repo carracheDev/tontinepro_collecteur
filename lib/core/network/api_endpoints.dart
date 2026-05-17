@@ -49,6 +49,7 @@ abstract class ApiEndpoints {
   // Notifications
   static const String notifications = '/notifications';
   static const String notificationsNonLues = '/notifications/non-lues';
+  static const String notificationsTokenPush = '/notifications/token-push';
 
   // Litiges
   static const String mesLitiges = '/litiges/mes-litiges';
