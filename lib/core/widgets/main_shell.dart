@@ -4,15 +4,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/app_colors.dart';
 import '../enums/role_collecteur.dart';
+import '../network/dio_client.dart';
+import '../network/api_endpoints.dart';
 import '../../features/auth/presentation/providers/session_provider.dart';
 import '../../router/app_router.dart';
 
-class MainShell extends ConsumerWidget {
+// Déclenche la génération du QR collecteur dès le premier affichage du shell
+// pour que le code soit toujours en base avant qu'un client le scanne.
+final _qrPrechauffeProvider = FutureProvider.autoDispose<void>((ref) async {
+  try {
+    await DioClient.instance.get(ApiEndpoints.monCodeQr);
+  } catch (_) {
+    // Silencieux — le profil le régénère si nécessaire
+  }
+});
+
+class MainShell extends ConsumerStatefulWidget {
   final Widget child;
   const MainShell({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends ConsumerState<MainShell> {
+  @override
+  void initState() {
+    super.initState();
+    // Préchauffer le QR dès que le shell est monté (après login)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(_qrPrechauffeProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final roleAsync = ref.watch(sessionRoleProvider);
     final role = roleAsync.value ?? RoleCollecteur.agent;
     final tabs = _tabsPourRole(role);
@@ -22,7 +48,7 @@ class MainShell extends ConsumerWidget {
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: AppColors.fond,
-        body: child,
+        body: widget.child,
         extendBody: true,
         bottomNavigationBar: roleAsync.isLoading
             ? null
@@ -41,19 +67,9 @@ class MainShell extends ConsumerWidget {
           _TabInfo(Routes.homeMissions, Icons.route_outlined, Icons.route, 'Missions'),
           _TabInfo(Routes.homeAlertes, Icons.notifications_outlined, Icons.notifications, 'Alertes'),
         ];
-      case RoleCollecteur.independant:
+      case RoleCollecteur.admin:
         return const [
           _TabInfo(Routes.home, Icons.home_outlined, Icons.home, 'Accueil'),
-          _TabInfo(Routes.homeClients, Icons.people_outline, Icons.people, 'Clients'),
-          _TabInfo('__qr__', Icons.qr_code_scanner, Icons.qr_code_scanner, ''),
-          _TabInfo(Routes.homeFinances, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, 'Finances'),
-          _TabInfo(Routes.homeAlertes, Icons.notifications_outlined, Icons.notifications, 'Alertes'),
-        ];
-      case RoleCollecteur.superviseur:
-        return const [
-          _TabInfo(Routes.home, Icons.home_outlined, Icons.home, 'Accueil'),
-          _TabInfo(Routes.homeZone, Icons.radar, Icons.radar, 'Zone'),
-          _TabInfo(Routes.homeLitiges, Icons.gavel_outlined, Icons.gavel, 'Litiges'),
           _TabInfo(Routes.homeAlertes, Icons.notifications_outlined, Icons.notifications, 'Alertes'),
         ];
     }

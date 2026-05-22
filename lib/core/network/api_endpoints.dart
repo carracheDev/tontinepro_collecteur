@@ -17,7 +17,7 @@ abstract class ApiEndpoints {
   static const String carteClients = '/collecteur/carte-clients';
   static const String mesPresences = '/collecteur/mes-presences';
   static const String dashboardIndependant =
-      '/collecteur/dashboard-independant';
+      '/collecteur/dashboard';
   static String contactWhatsApp(String clientId) =>
       '/collecteur/contact-whatsapp/$clientId';
 
@@ -45,6 +45,7 @@ abstract class ApiEndpoints {
   // QR
   static const String monCodeQr = '/qrcode/mon-code';
   static String scannerQrCode(String code) => '/qrcode/scanner/$code';
+  static String lierClient(String clientId) => '/collecteur/lier-client/$clientId';
 
   // Notifications
   static const String notifications = '/notifications';

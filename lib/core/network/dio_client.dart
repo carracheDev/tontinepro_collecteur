@@ -19,7 +19,7 @@ class DioClient {
         connectTimeout: const Duration(seconds: AppConstants.timeoutRequete),
         receiveTimeout: const Duration(seconds: AppConstants.timeoutRequete),
         sendTimeout: const Duration(seconds: AppConstants.timeoutRequete),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true'},
       ),
     );
 

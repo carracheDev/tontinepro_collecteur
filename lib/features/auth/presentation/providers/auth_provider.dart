@@ -11,7 +11,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 
 final authTelephoneProvider = StateProvider<String>((ref) => '');
 
-/// Rôle pour inscription (AGENT ou INDEPENDANT uniquement côté API).
+/// Rôle pour inscription (AGENT uniquement côté API).
 final inscriptionRoleProvider =
     StateProvider<RoleCollecteur>((ref) => RoleCollecteur.agent);
 

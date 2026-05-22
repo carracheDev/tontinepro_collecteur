@@ -202,7 +202,7 @@ class _RoleTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        role == RoleCollecteur.superviseur
+                        role == RoleCollecteur.admin
                             ? 'Supervision zone — sans collecte'
                             : 'Collecte terrain Mobile Money',
                         style: const TextStyle(

@@ -1,7 +1,6 @@
 enum RoleCollecteur {
   agent('AGENT', 'Agent salarié', 'AGENT'),
-  independant('INDEPENDANT', 'Collecteur indépendant', 'INDÉP.'),
-  superviseur('SUPERVISEUR', 'Superviseur de zone', 'SUPERVISEUR');
+  admin('ADMIN', 'Administrateur', 'ADMIN');
 
   final String apiValue;
   final String label;
@@ -17,8 +16,7 @@ enum RoleCollecteur {
     return null;
   }
 
-  bool get peutCollecter =>
-      this == RoleCollecteur.agent || this == RoleCollecteur.independant;
+  bool get peutCollecter => this == RoleCollecteur.agent;
 
   bool get peutScanner => peutCollecter;
 }

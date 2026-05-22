@@ -130,7 +130,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         final role = RoleCollecteur.depuisApi(
           await SecureStorage.lireUserRole(),
         );
-        if (role == RoleCollecteur.superviseur) {
+        if (role == RoleCollecteur.admin) {
           return Routes.home;
         }
       }

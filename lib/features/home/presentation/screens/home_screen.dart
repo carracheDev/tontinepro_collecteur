@@ -191,13 +191,26 @@ class _HeroCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 18),
-          Row(
-            children: [
-              for (var i = 0; i < kpis.length; i++) ...[
-                if (i > 0) const SizedBox(width: 8),
-                Expanded(child: _KpiBox(valeur: kpis[i].$1, label: kpis[i].$2)),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            ),
+            child: Row(
+              children: [
+                for (var i = 0; i < kpis.length; i++) ...[
+                  if (i > 0)
+                    Container(
+                      width: 1,
+                      height: 32,
+                      color: Colors.white.withValues(alpha: 0.15),
+                    ),
+                  Expanded(child: _KpiBox(valeur: kpis[i].$1, label: kpis[i].$2)),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),
@@ -223,7 +236,7 @@ class _HeroCard extends ConsumerWidget {
           (d?.stats.visites.toString() ?? '—', 'Visités'),
           (taux, 'Taux'),
         ];
-      case RoleCollecteur.independant:
+      case RoleCollecteur.agent:
         final d = ref.watch(_homeCommissionProvider).value;
         final nbClients = ref.watch(clientsDuJourProvider).value?.stats.total;
         return [
@@ -231,7 +244,7 @@ class _HeroCard extends ConsumerWidget {
           (d != null ? _montantCourt(d.soldeDisponible) : '—', 'Commissions'),
           ('1,5%', 'Taux'),
         ];
-      case RoleCollecteur.superviseur:
+      case RoleCollecteur.admin:
         final d = ref.watch(_homeZoneKpisProvider).value;
         return [
           (d?['collecteurs']?.toString() ?? '—', 'Agents'),
@@ -330,37 +343,37 @@ class _QuickActionsGrid extends ConsumerWidget {
       crossAxisCount: 2,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 2.8,
+      childAspectRatio: 2.6,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: actions
-          .map((a) => _ActionCard(icon: a.$1, label: a.$2, route: a.$3))
+          .map((a) => _ActionCard(icon: a.$1, label: a.$2, route: a.$3, couleur: a.$4))
           .toList(),
     );
   }
 
-  List<(IconData, String, String)> _actionsForRole(RoleCollecteur? role) {
+  List<(IconData, String, String, Color)> _actionsForRole(RoleCollecteur? role) {
     switch (role) {
       case RoleCollecteur.agent:
         return [
-          (Icons.people_outline, 'Clients', Routes.homeClients),
-          (Icons.qr_code_scanner_rounded, 'Collecte', Routes.homeQr),
-          (Icons.route_outlined, 'Missions', Routes.homeMissions),
-          (Icons.person_add_outlined, 'Enrôler', Routes.enrolement),
+          (Icons.people_outline, 'Clients', Routes.homeClients, AppColors.primary),
+          (Icons.qr_code_scanner_rounded, 'Collecte', Routes.homeQr, const Color(0xFF0284C7)),
+          (Icons.route_outlined, 'Missions', Routes.homeMissions, const Color(0xFF7C3AED)),
+          (Icons.person_add_outlined, 'Enrôler', Routes.enrolement, const Color(0xFFD97706)),
         ];
-      case RoleCollecteur.independant:
+      case RoleCollecteur.agent:
         return [
-          (Icons.people_outline, 'Clients', Routes.homeClients),
-          (Icons.qr_code_scanner_rounded, 'Collecte', Routes.homeQr),
-          (Icons.groups_outlined, 'Tontines groupes', Routes.tontinesGroupes),
-          (Icons.person_add_outlined, 'Enrôler', Routes.enrolement),
+          (Icons.people_outline, 'Clients', Routes.homeClients, AppColors.primary),
+          (Icons.qr_code_scanner_rounded, 'Collecte', Routes.homeQr, const Color(0xFF0284C7)),
+          (Icons.groups_outlined, 'Tontines', Routes.tontinesGroupes, const Color(0xFF7C3AED)),
+          (Icons.person_add_outlined, 'Enrôler', Routes.enrolement, const Color(0xFFD97706)),
         ];
-      case RoleCollecteur.superviseur:
+      case RoleCollecteur.admin:
         return [
-          (Icons.map_outlined, 'Zone', Routes.homeZone),
-          (Icons.people_outline, 'Clients', Routes.homeClients),
-          (Icons.gavel_outlined, 'Litiges', Routes.homeLitiges),
-          (Icons.notifications_outlined, 'Alertes', Routes.homeAlertes),
+          (Icons.map_outlined, 'Zone', Routes.homeZone, AppColors.primary),
+          (Icons.people_outline, 'Clients', Routes.homeClients, const Color(0xFF0284C7)),
+          (Icons.gavel_outlined, 'Litiges', Routes.homeLitiges, const Color(0xFFDC2626)),
+          (Icons.notifications_outlined, 'Alertes', Routes.homeAlertes, const Color(0xFFD97706)),
         ];
       default:
         return [];
@@ -372,64 +385,70 @@ class _ActionCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String route;
+  final Color couleur;
+
   const _ActionCard({
     required this.icon,
     required this.label,
     required this.route,
+    required this.couleur,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        if (route == Routes.homeQr) {
-          context.push(route);
-        } else if (route == Routes.enrolement ||
-            route == Routes.tontinesGroupes) {
-          context.push(route);
-        } else {
-          context.go(route);
-        }
-      },
+    return Material(
+      color: Colors.white,
       borderRadius: BorderRadius.circular(18),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.bordure),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x070F172A),
-              blurRadius: 14,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: () {
+          if (route == Routes.homeQr ||
+              route == Routes.enrolement ||
+              route == Routes.tontinesGroupes) {
+            context.push(route);
+          } else {
+            context.go(route);
+          }
+        },
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.bordureNeutre),
+            boxShadow: AppColors.shadowNiveau1,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: couleur.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(icon, color: couleur, size: 21),
               ),
-              child: Icon(icon, color: AppColors.primary, size: 20),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.texte,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.texte,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-          ],
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.muted,
+                size: 12,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -445,9 +464,9 @@ class _DashboardBody extends ConsumerWidget {
     switch (role) {
       case RoleCollecteur.agent:
         return _AgentDashboard();
-      case RoleCollecteur.independant:
+      case RoleCollecteur.agent:
         return _IndependantDashboard();
-      case RoleCollecteur.superviseur:
+      case RoleCollecteur.admin:
         return _SuperviseurDashboard();
       default:
         return const SizedBox.shrink();
@@ -574,7 +593,7 @@ class _AgentDashboard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Message superviseur',
+                      'Message admin',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 13,
@@ -1010,7 +1029,7 @@ class _AppDrawer extends ConsumerWidget {
                       context.go(Routes.homeClients);
                     },
                   ),
-                  if (role != RoleCollecteur.superviseur) ...[
+                  if (role != RoleCollecteur.admin) ...[
                     _DrawerItem(
                       icon: Icons.person_add_outlined,
                       label: 'Enrôler un client',
@@ -1040,7 +1059,7 @@ class _AppDrawer extends ConsumerWidget {
                         context.go(Routes.homeMissions);
                       },
                     ),
-                  if (role == RoleCollecteur.independant)
+                  if (role == RoleCollecteur.agent)
                     _DrawerItem(
                       icon: Icons.account_balance_wallet_outlined,
                       label: 'Commissions',
@@ -1050,7 +1069,7 @@ class _AppDrawer extends ConsumerWidget {
                         context.go(Routes.homeFinances);
                       },
                     ),
-                  if (role == RoleCollecteur.superviseur) ...[
+                  if (role == RoleCollecteur.admin) ...[
                     _DrawerItem(
                       icon: Icons.map_outlined,
                       label: 'Supervision zone',
@@ -1073,7 +1092,7 @@ class _AppDrawer extends ConsumerWidget {
                   _DrawerItem(
                     icon: Icons.gavel_outlined,
                     label: 'Litiges',
-                    sousTitre: role == RoleCollecteur.superviseur
+                    sousTitre: role == RoleCollecteur.admin
                         ? 'Examine et clôture'
                         : 'Signaler un problème',
                     onTap: () {
