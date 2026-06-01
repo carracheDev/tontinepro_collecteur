@@ -498,7 +498,7 @@ class _QrCard extends ConsumerWidget {
                         fontFamily: 'Nunito',
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.primaryText,
+                        color: AppColors.primaryDark,
                         letterSpacing: 1.5,
                       ),
                     ),

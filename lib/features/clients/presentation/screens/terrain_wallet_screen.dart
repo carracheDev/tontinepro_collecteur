@@ -65,7 +65,7 @@ class _TerrainWalletScreenState extends State<TerrainWalletScreen> {
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppColors.primaryDark, Color(0xFF16A34A)],
+                  colors: [AppColors.primaryDark, AppColors.secondary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),

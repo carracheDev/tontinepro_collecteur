@@ -34,6 +34,15 @@ abstract class ApiEndpoints {
 
   // Micro-crédits
   static const String demanderMicroCredit = '/micro-credits/demander';
+  static const String eligibiliteMicroCredit = '/micro-credits/mon-eligibilite';
+  static const String mesCredits = '/micro-credits/mes-credits';
+  static String preleverMaintenant(String creditId) => '/micro-credits/$creditId/prelever-maintenant';
+  static String remboursementsCredit(String creditId) => '/micro-credits/$creditId/remboursements';
+
+  // PADME
+  static const String padmeEligibilite = '/padme/mon-eligibilite';
+  static String padmeDemanderAssiste(String clientId) => '/padme/demander-assiste?clientId=$clientId';
+  static String padmeMesDossiers(String clientId) => '/padme/mes-dossiers?clientId=$clientId';
 
   // Tontines
   static const String mesTontines = '/tontines/mes-tontines';

@@ -12,6 +12,11 @@ class DioClient {
     return _instance!;
   }
 
+  static void reset() {
+    _instance?.close(force: true);
+    _instance = null;
+  }
+
   static Dio _creer() {
     final dio = Dio(
       BaseOptions(

@@ -120,7 +120,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                     _Chip(
                       label: 'Tous',
                       actif: filtre == FiltreClients.tous,
-                      bgActif: AppColors.primaryLight,
+                      bgActif: AppColors.lime,
                       txtActif: AppColors.primary,
                       onTap: () => ref
                           .read(filtreClientsProvider.notifier)

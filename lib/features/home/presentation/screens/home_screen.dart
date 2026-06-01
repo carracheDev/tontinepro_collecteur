@@ -72,7 +72,7 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
       title: const Text(
-        'TontinePro',
+        'TontineBénin',
         style: TextStyle(
           fontFamily: 'Poppins',
           fontSize: 17,
@@ -119,100 +119,153 @@ class _HeroCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final kpis = _buildKpis(ref);
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: AppColors.gradientHero,
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryDark.withValues(alpha: 0.35),
-            blurRadius: 35,
-            offset: const Offset(0, 16),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+    // Couleurs style WHX
+    const fondSombre = AppColors.heroFond;
+    const lime = AppColors.lime;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(26),
+      child: Container(
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: fondSombre,
+          borderRadius: BorderRadius.circular(26),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryDark.withValues(alpha: 0.5),
+              blurRadius: 30,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Lignes décoratives style WHX
+            Positioned(
+              top: -20,
+              right: -10,
+              child: CustomPaint(
+                size: const Size(120, 120),
+                painter: _LignesDecoWhx(couleur: lime),
+              ),
+            ),
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _greeting(),
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFD1FAE5),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _greeting(),
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            nom,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Badge rôle avec couleur lime
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: lime.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(99),
+                              border: Border.all(
+                                  color: lime.withValues(alpha: 0.4)),
+                            ),
+                            child: Text(
+                              role?.label.toUpperCase() ?? 'COLLECTEUR',
+                              style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: lime,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      nom,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: lime.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: lime.withValues(alpha: 0.3)),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: [
-                        if (role != null)
-                          _HeroBadge(role!.label, Colors.white.withValues(alpha: 0.18)),
-                        _HeroBadge('Compte ACTIF', const Color(0x2286EFAC)),
-                      ],
+                      child: const Icon(Icons.shield_outlined,
+                          color: lime, size: 24),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
+
+                const SizedBox(height: 20),
+
+                // KPIs
+                Row(
+                  children: [
+                    for (var i = 0; i < kpis.length; i++) ...[
+                      if (i > 0)
+                        Container(
+                          width: 1,
+                          height: 36,
+                          margin:
+                              const EdgeInsets.symmetric(horizontal: 8),
+                          color: Colors.white.withValues(alpha: 0.12),
+                        ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Text(
+                              kpis[i].$1,
+                              style: const TextStyle(
+                                fontFamily: 'Nunito',
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                color: lime,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              kpis[i].$2,
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 10,
+                                color: Colors.white.withValues(alpha: 0.55),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                child: const Icon(
-                  Icons.shield_outlined,
-                  color: Colors.white,
-                  size: 26,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-            ),
-            child: Row(
-              children: [
-                for (var i = 0; i < kpis.length; i++) ...[
-                  if (i > 0)
-                    Container(
-                      width: 1,
-                      height: 32,
-                      color: Colors.white.withValues(alpha: 0.15),
-                    ),
-                  Expanded(child: _KpiBox(valeur: kpis[i].$1, label: kpis[i].$2)),
-                ],
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -260,6 +313,38 @@ class _HeroCard extends ConsumerWidget {
     if (val >= 1000) return '${(val / 1000).toStringAsFixed(0)}k F';
     return '$val F';
   }
+}
+
+// Lignes décoratives style WHX
+class _LignesDecoWhx extends CustomPainter {
+  final Color couleur;
+  const _LignesDecoWhx({required this.couleur});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = couleur.withValues(alpha: 0.25)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    final path1 = Path()
+      ..moveTo(size.width * 0.2, 0)
+      ..quadraticBezierTo(size.width, size.height * 0.3, size.width * 0.8, size.height);
+    canvas.drawPath(path1, paint);
+
+    final paint2 = Paint()
+      ..color = couleur.withValues(alpha: 0.12)
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    final path2 = Path()
+      ..moveTo(0, size.height * 0.2)
+      ..quadraticBezierTo(size.width * 0.5, size.height * 0.5, size.width, size.height * 0.1);
+    canvas.drawPath(path2, paint2);
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
 }
 
 class _HeroBadge extends StatelessWidget {
@@ -361,13 +446,6 @@ class _QuickActionsGrid extends ConsumerWidget {
           (Icons.route_outlined, 'Missions', Routes.homeMissions, const Color(0xFF7C3AED)),
           (Icons.person_add_outlined, 'Enrôler', Routes.enrolement, const Color(0xFFD97706)),
         ];
-      case RoleCollecteur.agent:
-        return [
-          (Icons.people_outline, 'Clients', Routes.homeClients, AppColors.primary),
-          (Icons.qr_code_scanner_rounded, 'Collecte', Routes.homeQr, const Color(0xFF0284C7)),
-          (Icons.groups_outlined, 'Tontines', Routes.tontinesGroupes, const Color(0xFF7C3AED)),
-          (Icons.person_add_outlined, 'Enrôler', Routes.enrolement, const Color(0xFFD97706)),
-        ];
       case RoleCollecteur.admin:
         return [
           (Icons.map_outlined, 'Zone', Routes.homeZone, AppColors.primary),
@@ -464,8 +542,6 @@ class _DashboardBody extends ConsumerWidget {
     switch (role) {
       case RoleCollecteur.agent:
         return _AgentDashboard();
-      case RoleCollecteur.agent:
-        return _IndependantDashboard();
       case RoleCollecteur.admin:
         return _SuperviseurDashboard();
       default:

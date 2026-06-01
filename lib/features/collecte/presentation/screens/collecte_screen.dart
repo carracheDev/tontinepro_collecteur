@@ -187,7 +187,7 @@ class _CollecteScreenState extends ConsumerState<CollecteScreen> {
                                     fontWeight: FontWeight.w800,
                                     color: actif
                                         ? Colors.white
-                                        : AppColors.primaryText,
+                                        : AppColors.primaryDark,
                                   ),
                                 ),
                               ),
@@ -260,7 +260,7 @@ class _CollecteScreenState extends ConsumerState<CollecteScreen> {
                                     fontFamily: 'Poppins',
                                     fontSize: 11,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.primaryText,
+                                    color: AppColors.primaryDark,
                                   ),
                                 ),
                               ),
@@ -290,14 +290,14 @@ class _CollecteScreenState extends ConsumerState<CollecteScreen> {
                                     fontFamily: 'Nunito',
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.primaryText,
+                                    color: AppColors.primaryDark,
                                   ),
                                 ),
                                 const Spacer(),
                                 Text(
                                   'Commission : ${Formatters.montant((montantActuel * 0.03).round())}',
                                   style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.primaryText,
+                                    color: AppColors.primaryDark,
                                   ),
                                 ),
                               ],

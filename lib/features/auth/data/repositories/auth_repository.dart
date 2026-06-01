@@ -5,9 +5,19 @@ import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/secure_storage.dart';
 
 class AuthRepository {
-  final Dio _dio = DioClient.instance;
+  Dio get _dio => DioClient.instance;
 
-  /// Renvoie un OTP si le compte existe sans PIN (inscription inachevée).
+  // Dio propre sans intercepteur auth — pour les appels sensibles (creerPin, connexion)
+  Dio get _cleanDio => Dio(BaseOptions(
+    baseUrl: AppConstants.baseUrl,
+    connectTimeout: const Duration(seconds: AppConstants.timeoutRequete),
+    receiveTimeout: const Duration(seconds: AppConstants.timeoutRequete),
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+    },
+  ));
+
   Future<Map<String, String?>> renvoyerOtpInscription({
     required String telephone,
   }) async {
@@ -16,10 +26,9 @@ class AuthRepository {
       data: {'telephone': telephone},
     );
     final donnees = resp.donnees;
-    final otpTest = donnees['otpTest'];
     return {
       'otpId': donnees['otpId']?.toString(),
-      'otpTest': otpTest?.toString(),
+      'otpTest': donnees['otpTest']?.toString(),
       'nom': donnees['nom']?.toString(),
       'role': donnees['role']?.toString(),
       'reprise': donnees['reprise']?.toString(),
@@ -36,10 +45,9 @@ class AuthRepository {
       data: {'telephone': telephone, 'nom': nom, 'role': role},
     );
     final donnees = resp.donnees;
-    final otpTest = donnees['otpTest'];
     return {
       'otpId': donnees['otpId']?.toString(),
-      'otpTest': otpTest?.toString(),
+      'otpTest': donnees['otpTest']?.toString(),
     };
   }
 
@@ -57,24 +65,14 @@ class AuthRepository {
 
   Future<void> creerPin({required String pin}) async {
     final token = await SecureStorage.lireTokenOnboarding();
-    final tempDio = Dio(
-      BaseOptions(
-        baseUrl: AppConstants.baseUrl,
-        connectTimeout: const Duration(seconds: AppConstants.timeoutRequete),
-        receiveTimeout: const Duration(seconds: AppConstants.timeoutRequete),
-      ),
-    );
-    final resp = await tempDio.post(
+    final resp = await _cleanDio.post(
       ApiEndpoints.creerPin,
-      options: Options(
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ),
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
       data: {'pin': pin},
     );
     final donnees = resp.data['donnees'] as Map<String, dynamic>;
+    // Reset DioClient pour tuer tout refresh en cours
+    DioClient.reset();
     await SecureStorage.sauvegarderTokens(
       accessToken: donnees['accessToken'] as String,
       refreshToken: donnees['refreshToken'] as String,
@@ -86,11 +84,13 @@ class AuthRepository {
     required String telephone,
     required String pin,
   }) async {
-    final resp = await _dio.post(
+    final resp = await _cleanDio.post(
       ApiEndpoints.connexion,
       data: {'telephone': telephone, 'pin': pin},
     );
     final donnees = resp.data['donnees'] as Map<String, dynamic>;
+    // Reset DioClient pour tuer tout refresh en cours
+    DioClient.reset();
     await SecureStorage.sauvegarderTokens(
       accessToken: donnees['accessToken'] as String,
       refreshToken: donnees['refreshToken'] as String,
@@ -99,20 +99,23 @@ class AuthRepository {
   }
 
   Future<void> _chargerProfil() async {
-    final resp = await _dio.get(ApiEndpoints.profil);
-    final u = resp.donnees;
-    await SecureStorage.sauvegarderUtilisateur(
-      id: u['id']?.toString() ?? '',
-      telephone: u['telephone']?.toString() ?? '',
-      nom: u['nom']?.toString() ?? 'Collecteur',
-      role: u['role']?.toString() ?? 'AGENT',
-    );
+    try {
+      final resp = await _dio.get(ApiEndpoints.profil);
+      final u = resp.donnees;
+      await SecureStorage.sauvegarderUtilisateur(
+        id: u['id']?.toString() ?? '',
+        telephone: u['telephone']?.toString() ?? '',
+        nom: u['nom']?.toString() ?? 'Collecteur',
+        role: u['role']?.toString() ?? 'AGENT',
+      );
+    } catch (_) {}
   }
 
   Future<void> deconnexion() async {
     try {
       await _dio.post(ApiEndpoints.deconnexion);
     } catch (_) {}
+    DioClient.reset();
     await SecureStorage.effacerSession();
   }
 }

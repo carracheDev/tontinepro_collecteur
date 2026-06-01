@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/enums/role_collecteur.dart';
 import '../../../../core/storage/secure_storage.dart';
 import '../../../../router/app_router.dart';
@@ -57,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
               errorBuilder: (_, _, _) => const Icon(
                 Icons.savings_rounded,
                 size: 80,
-                color: Color(0xFF16A34A),
+                color: AppColors.secondary,
               ),
             ),
             const SizedBox(height: 20),
@@ -67,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontFamily: 'Poppins',
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF14532D),
+                color: AppColors.primaryDark,
               ),
             ),
             const SizedBox(height: 8),
@@ -85,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 42,
               child: CircularProgressIndicator(
                 strokeWidth: 4,
-                valueColor: AlwaysStoppedAnimation(Color(0xFF16A34A)),
+                valueColor: AlwaysStoppedAnimation(AppColors.secondary),
               ),
             ),
           ],

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../router/app_router.dart';
 import '../providers/auth_provider.dart';
 
@@ -207,7 +208,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               ),
               child: const Icon(
                 Icons.sms_outlined,
-                color: Color(0xFF16A34A),
+                color: AppColors.secondary,
                 size: 32,
               ),
             ),
@@ -264,7 +265,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: rempli
-                          ? const Color(0xFF16A34A)
+                          ? AppColors.secondary
                           : const Color(0xFFE5E7EB),
                       width: 1.5,
                     ),
@@ -299,7 +300,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 fontWeight: FontWeight.bold,
                 color: timerRouge
                     ? const Color(0xFFDC2626)
-                    : const Color(0xFF16A34A),
+                    : AppColors.secondary,
                 fontFamily: 'Nunito',
               ),
             ),
@@ -310,7 +311,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 'Renvoyer le code',
                 style: TextStyle(
                   color: _peutRenvoyer
-                      ? const Color(0xFF16A34A)
+                      ? AppColors.secondary
                       : const Color(0xFF9CA3AF),
                   fontSize: 14,
                   fontFamily: 'Poppins',
@@ -360,7 +361,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _complet
-                      ? const Color(0xFF16A34A)
+                      ? AppColors.secondary
                       : const Color(0xFF9CA3AF),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
