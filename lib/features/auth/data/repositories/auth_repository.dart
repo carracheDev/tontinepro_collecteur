@@ -40,7 +40,11 @@ class AuthRepository {
     required String nom,
     required String role,
   }) async {
-    final resp = await _dio.post(
+    // Repart d'une session 100% propre : aucune inscription ne doit hériter
+    // du compte précédent (sinon on reste affiché sur l'ancien utilisateur).
+    await SecureStorage.effacerSession();
+    DioClient.reset();
+    final resp = await _cleanDio.post(
       ApiEndpoints.inscription,
       data: {'telephone': telephone, 'nom': nom, 'role': role},
     );
@@ -84,6 +88,11 @@ class AuthRepository {
     required String telephone,
     required String pin,
   }) async {
+    // Repart d'une session propre : si la connexion échoue, on ne reste pas
+    // affiché sur l'ancien compte.
+    await SecureStorage.effacerSession();
+    DioClient.reset();
+
     final resp = await _cleanDio.post(
       ApiEndpoints.connexion,
       data: {'telephone': telephone, 'pin': pin},
@@ -95,20 +104,36 @@ class AuthRepository {
       accessToken: donnees['accessToken'] as String,
       refreshToken: donnees['refreshToken'] as String,
     );
-    await _chargerProfil();
+    final role = await _chargerProfil();
+
+    // Garde-fou : seul un AGENT (ou ADMIN) peut utiliser l'app collecteur.
+    // Un compte CLIENT doit utiliser l'app client (sinon : 403 partout).
+    if (role != 'AGENT' && role != 'ADMIN') {
+      await SecureStorage.effacerSession();
+      DioClient.reset();
+      throw Exception(
+        "Ce numéro n'est pas un compte collecteur. "
+        "Utilisez l'application client, ou inscrivez-vous comme collecteur.",
+      );
+    }
   }
 
-  Future<void> _chargerProfil() async {
+  /// Charge le profil et renvoie le rôle de l'utilisateur connecté.
+  Future<String?> _chargerProfil() async {
     try {
       final resp = await _dio.get(ApiEndpoints.profil);
       final u = resp.donnees;
+      final role = u['role']?.toString();
       await SecureStorage.sauvegarderUtilisateur(
         id: u['id']?.toString() ?? '',
         telephone: u['telephone']?.toString() ?? '',
         nom: u['nom']?.toString() ?? 'Collecteur',
-        role: u['role']?.toString() ?? 'AGENT',
+        role: role ?? 'AGENT',
       );
-    } catch (_) {}
+      return role;
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> deconnexion() async {

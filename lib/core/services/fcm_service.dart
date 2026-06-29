@@ -20,7 +20,7 @@ class FcmService {
   final _localNotif = FlutterLocalNotificationsPlugin();
 
   static const _channelId = 'tontinepro_collecteur_channel';
-  static const _channelName = 'TontinePro Collecteur';
+  static const _channelName = 'TontineBénin Collecteur';
 
   // Token FCM disponible après init()
   String? token;

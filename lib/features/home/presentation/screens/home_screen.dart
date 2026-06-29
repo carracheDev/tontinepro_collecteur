@@ -272,9 +272,9 @@ class _HeroCard extends ConsumerWidget {
 
   String _greeting() {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Bonjour 🌤';
-    if (h < 18) return 'Bon après-midi ☀️';
-    return 'Bonsoir 🌙';
+    if (h < 12) return 'Bonjour';
+    if (h < 18) return 'Bon après-midi';
+    return 'Bonsoir';
   }
 
   List<(String, String)> _buildKpis(WidgetRef ref) {

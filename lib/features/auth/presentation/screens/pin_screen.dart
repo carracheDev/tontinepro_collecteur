@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pinput/pinput.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/enums/role_collecteur.dart';
@@ -20,7 +21,8 @@ class PinScreen extends ConsumerStatefulWidget {
 
 class _PinScreenState extends ConsumerState<PinScreen>
     with SingleTickerProviderStateMixin {
-  final List<int> _pin = [];
+  final _ctrl = TextEditingController();
+  final _focus = FocusNode();
   bool _bioScanning = false;
   String? _bioStatus;
   late AnimationController _pulseCtrl;
@@ -47,21 +49,10 @@ class _PinScreenState extends ConsumerState<PinScreen>
 
   @override
   void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
     _pulseCtrl.dispose();
     super.dispose();
-  }
-
-  void _appuyer(String touche) {
-    final state = ref.read(connexionProvider);
-    if (state.loading) return;
-
-    if (touche == 'del') {
-      if (_pin.isNotEmpty) setState(() => _pin.removeLast());
-      return;
-    }
-    if (_pin.length >= 4) return;
-    setState(() => _pin.add(int.parse(touche)));
-    if (_pin.length == 4) _connecter();
   }
 
   Future<void> _biometrie() async {
@@ -84,7 +75,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
     }
   }
 
-  Future<void> _connecter() async {
+  Future<void> _connecter(String pin) async {
     final tel = ref.read(authTelephoneProvider);
     if (tel.isEmpty) {
       if (mounted) context.pop();
@@ -93,23 +84,21 @@ class _PinScreenState extends ConsumerState<PinScreen>
 
     final ok = await ref.read(connexionProvider.notifier).connecter(
           telephone: tel,
-          pin: _pin.join(),
+          pin: pin,
         );
 
     if (!mounted) return;
 
     if (ok) {
-      if (!mounted) return;
-      // Rafraîchir TOUS les providers (nom, rôle, téléphone)
       rafraichirSession(ref.invalidate);
       final roleApi = await SecureStorage.lireUserRole();
       final role = RoleCollecteur.depuisApi(roleApi) ??
           ref.read(authRoleDemoProvider);
-
       if (!mounted) return;
       context.go(routeAccueilPourRole(role));
     } else {
-      setState(() => _pin.clear());
+      _ctrl.clear();
+      WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
       final err = ref.read(connexionProvider).erreur ?? 'PIN incorrect';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
     }
@@ -119,9 +108,40 @@ class _PinScreenState extends ConsumerState<PinScreen>
   Widget build(BuildContext context) {
     final state = ref.watch(connexionProvider);
 
+    final defaultPin = PinTheme(
+      width: 58,
+      height: 62,
+      textStyle: const TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w900,
+        color: AppColors.texte,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.bordure, width: 1.5),
+      ),
+    );
+    final focusedPin = defaultPin.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary, width: 2),
+      ),
+    );
+    final submittedPin = defaultPin.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary, width: 1.5),
+      ),
+    );
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.fond,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded),
           onPressed: () => context.pop(),
@@ -134,56 +154,56 @@ class _PinScreenState extends ConsumerState<PinScreen>
           children: [
             const SizedBox(height: 16),
             Container(
-              width: 64,
-              height: 64,
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
                 color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.lock_outline, color: AppColors.primary, size: 32),
+              child: const Icon(Icons.lock_outline,
+                  color: AppColors.primary, size: 34),
             ),
             const SizedBox(height: 16),
             Text('Entrez votre PIN', style: AppTextStyles.titre3),
-            const SizedBox(height: 4),
-            const Text(
-              'Jamais communiqué à quiconque',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: AppColors.muted),
+            const SizedBox(height: 6),
+            Text('Jamais communiqué à quiconque',
+                style: AppTextStyles.corpsSecond),
+            const SizedBox(height: 32),
+
+            // Cases à points + clavier numérique du téléphone
+            Pinput(
+              controller: _ctrl,
+              focusNode: _focus,
+              length: 4,
+              autofocus: true,
+              obscureText: true,
+              obscuringCharacter: '●',
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              defaultPinTheme: defaultPin,
+              focusedPinTheme: focusedPin,
+              submittedPinTheme: submittedPin,
+              separatorBuilder: (_) => const SizedBox(width: 14),
+              enabled: !state.loading,
+              onCompleted: _connecter,
             ),
-            const SizedBox(height: 28),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (i) {
-                final rempli = i < _pin.length;
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: rempli ? AppColors.primary : Colors.transparent,
-                    border: Border.all(
-                      color: rempli ? AppColors.primary : AppColors.bordure,
-                      width: 2,
-                    ),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 28),
+
+            const SizedBox(height: 24),
             if (state.loading)
               const Padding(
-                padding: EdgeInsets.all(24),
+                padding: EdgeInsets.all(8),
                 child: CircularProgressIndicator(color: AppColors.primary),
-              )
-            else
-              _ClavierPin(onTouche: _appuyer, onBio: _biometrie),
-            const SizedBox(height: 24),
+              ),
+
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(child: Divider(color: AppColors.bordure)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text('OU', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w800)),
+                  child: Text('OU',
+                      style: AppTextStyles.caption
+                          .copyWith(fontWeight: FontWeight.w800)),
                 ),
                 Expanded(child: Divider(color: AppColors.bordure)),
               ],
@@ -204,11 +224,13 @@ class _PinScreenState extends ConsumerState<PinScreen>
                     shape: BoxShape.circle,
                     color: AppColors.primaryLight,
                     border: Border.all(
-                      color: _bioScanning ? AppColors.primary : Colors.transparent,
+                      color:
+                          _bioScanning ? AppColors.primary : Colors.transparent,
                       width: 2,
                     ),
                   ),
-                  child: const Icon(Icons.fingerprint, size: 36, color: AppColors.primary),
+                  child: const Icon(Icons.fingerprint,
+                      size: 36, color: AppColors.primary),
                 ),
               ),
             ),
@@ -224,106 +246,18 @@ class _PinScreenState extends ConsumerState<PinScreen>
             ),
             if (_bioStatus != null) ...[
               const SizedBox(height: 6),
-              Text(
-                _bioStatus!,
-                style: AppTextStyles.caption,
-              ),
+              Text(_bioStatus!, style: AppTextStyles.caption),
             ],
             const SizedBox(height: 24),
             const Text(
-              'PIN oublié ? Contacter l\'admin TontinePro',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: AppColors.muted),
+              'PIN oublié ? Contacter l\'admin TontineBénin',
+              style: TextStyle(
+                  fontFamily: 'Poppins', fontSize: 12, color: AppColors.muted),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ClavierPin extends StatelessWidget {
-  final void Function(String) onTouche;
-  final VoidCallback onBio;
-
-  const _ClavierPin({required this.onTouche, required this.onBio});
-
-  @override
-  Widget build(BuildContext context) {
-    Widget touche(String label, {Widget? child, VoidCallback? onTap}) {
-      return SizedBox(
-        height: 72,
-        child: Material(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            onTap: onTap ?? () => onTouche(label),
-            borderRadius: BorderRadius.circular(20),
-            child: Center(
-              child: child ??
-                  Text(
-                    label,
-                    style: GoogleFonts.nunito(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.texte,
-                    ),
-                  ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: 300,
-      child: Column(
-        children: [
-          Row(children: [
-            Expanded(child: touche('1')),
-            const SizedBox(width: 16),
-            Expanded(child: touche('2')),
-            const SizedBox(width: 16),
-            Expanded(child: touche('3')),
-          ]),
-          const SizedBox(height: 16),
-          Row(children: [
-            Expanded(child: touche('4')),
-            const SizedBox(width: 16),
-            Expanded(child: touche('5')),
-            const SizedBox(width: 16),
-            Expanded(child: touche('6')),
-          ]),
-          const SizedBox(height: 16),
-          Row(children: [
-            Expanded(child: touche('7')),
-            const SizedBox(width: 16),
-            Expanded(child: touche('8')),
-            const SizedBox(width: 16),
-            Expanded(child: touche('9')),
-          ]),
-          const SizedBox(height: 16),
-          Row(children: [
-            Expanded(
-              child: touche(
-                '',
-                onTap: onBio,
-                child: const Icon(Icons.fingerprint, color: AppColors.primary, size: 28),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(child: touche('0')),
-            const SizedBox(width: 16),
-            Expanded(
-              child: touche(
-                '',
-                onTap: () => onTouche('del'),
-                child: const Icon(Icons.backspace_outlined, size: 24),
-              ),
-            ),
-          ]),
-        ],
       ),
     );
   }

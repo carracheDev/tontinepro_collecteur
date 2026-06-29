@@ -127,18 +127,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                         Container(
                           width: 80,
                           height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.savings_rounded,
+                          padding: const EdgeInsets.all(9),
+                          decoration: const BoxDecoration(
                             color: Colors.white,
-                            size: 40,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Image.asset(
+                            'assets/images/logo_embleme.png',
+                            fit: BoxFit.contain,
                           ),
                         ),
                         const SizedBox(height: 20),

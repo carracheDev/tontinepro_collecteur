@@ -52,9 +52,10 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/images/logo_tontinepro.png',
-              width: 128,
-              height: 128,
+              'assets/images/logo_embleme.png',
+              width: 140,
+              height: 140,
+              fit: BoxFit.contain,
               errorBuilder: (_, _, _) => const Icon(
                 Icons.savings_rounded,
                 size: 80,
@@ -63,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'TontinePro Collecteur',
+              'TontineBénin Collecteur',
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 26,

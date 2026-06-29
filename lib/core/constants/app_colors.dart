@@ -1,41 +1,39 @@
 import 'package:flutter/material.dart';
 
-/// Palette TontineBénin Collecteur — Style WHX
-/// Règle : vert forêt #1E4228 (légèrement éclairci) + lime #C5E81A
-/// Les DEUX couleurs doivent être visibles sur chaque page
+/// Palette TontineBénin Collecteur — alignée sur l'écosystème BLEU (app client).
+/// Bleu = marque (boutons, accents, hero). Vert = uniquement succès/payé/vérifié.
+/// Les noms de tokens restent identiques pour compatibilité avec les widgets.
 abstract class AppColors {
 
   // ══════════════════════════════════════════════════════
-  // COULEUR 1 : Vert forêt (légèrement éclairci vs avant)
+  // COULEUR 1 : Bleu marque (ex-vert forêt)
   // ══════════════════════════════════════════════════════
-  static const Color primary      = Color(0xFF1E4228); // éclairci vs #1B3A22
-  static const Color primaryDark  = Color(0xFF122916); // pour gradients hero
-  static const Color primaryLight = Color(0xFFE2F0E6); // badges et fonds légers
-  static const Color primaryText  = Color(0xFF1E4228);
+  static const Color primary      = Color(0xFF2563EB); // bleu royal
+  static const Color primaryDark  = Color(0xFF1E3A8A); // gradients hero / nuit
+  static const Color primaryLight = Color(0xFFE8EEFD); // badges et fonds légers
+  static const Color primaryText  = Color(0xFF1E3A8A);
 
   // ══════════════════════════════════════════════════════
-  // COULEUR 2 : Lime citron WHX — doit apparaître sur TOUTES les pages
-  // Sur fond blanc : lime en background pour badges actifs, filtres, indicators
-  // Sur fond sombre : lime en texte/icône (hero card)
+  // COULEUR 2 : Accent clair (ex-lime) — visible sur fonds sombres
   // ══════════════════════════════════════════════════════
-  static const Color lime         = Color(0xFFC5E81A); // accent WHX principal
-  static const Color limeDark     = Color(0xFF8FA812); // lime plus foncé
-  static const Color limeLight    = Color(0xFFF5FAD0); // lime très pâle pour fonds
+  static const Color lime         = Color(0xFF60A5FA); // bleu clair accent
+  static const Color limeDark     = Color(0xFF3B82F6);
+  static const Color limeLight    = Color(0xFFEFF4FF);
 
   // ══════════════════════════════════════════════════════
-  // Aliases (compatibilité avec les widgets existants)
+  // Aliases (compatibilité widgets existants)
   // ══════════════════════════════════════════════════════
-  static const Color secondary      = Color(0xFF1E4228);
-  static const Color secondaryDark  = Color(0xFF122916);
-  static const Color secondaryLight = Color(0xFFE2F0E6);
-  static const Color primaryVif     = Color(0xFF1E4228);
-  static const Color heroFond       = Color(0xFF122916);
-  static const Color confirmer      = Color(0xFF1E4228);
+  static const Color secondary      = Color(0xFF2563EB);
+  static const Color secondaryDark  = Color(0xFF1E3A8A);
+  static const Color secondaryLight = Color(0xFFE8EEFD);
+  static const Color primaryVif     = Color(0xFF2563EB);
+  static const Color heroFond       = Color(0xFF1E3A8A);
+  static const Color confirmer      = Color(0xFF2563EB);
 
   // ══════════════════════════════════════════════════════
-  // FONDS — blanc dominant
+  // FONDS — lavande très clair dominant
   // ══════════════════════════════════════════════════════
-  static const Color fond      = Color(0xFFF9FAF9);
+  static const Color fond      = Color(0xFFEEF2FB);
   static const Color surface   = Color(0xFFFFFFFF);
   static const Color blanc     = Color(0xFFFFFFFF);
   static const Color fondCarte = Color(0xFFFFFFFF);
@@ -48,9 +46,9 @@ abstract class AppColors {
   static const Color muted       = Color(0xFF9CA3AF);
 
   // ══════════════════════════════════════════════════════
-  // BORDURES
+  // BORDURES — neutres
   // ══════════════════════════════════════════════════════
-  static const Color bordure       = Color(0xFFCBE4D3);
+  static const Color bordure       = Color(0xFFE9EDF6);
   static const Color bordureNeutre = Color(0xFFE5E7EB);
 
   // ══════════════════════════════════════════════════════
@@ -62,10 +60,10 @@ abstract class AppColors {
   static const Color desactive = Color(0xFF9CA3AF);
 
   // ══════════════════════════════════════════════════════
-  // ÉTATS
+  // ÉTATS — vert UNIQUEMENT pour succès
   // ══════════════════════════════════════════════════════
-  static const Color succes        = Color(0xFF1E4228);
-  static const Color succesLight   = Color(0xFFE2F0E6);
+  static const Color succes        = Color(0xFF16A34A);
+  static const Color succesLight   = Color(0xFFF0FDF4);
   static const Color danger        = Color(0xFFDC2626);
   static const Color dangerLight   = Color(0xFFFEF2F2);
   static const Color dangerDark    = Color(0xFF991B1B);
@@ -74,31 +72,31 @@ abstract class AppColors {
   static const Color infoLight     = Color(0xFFEFF6FF);
 
   // ══════════════════════════════════════════════════════
-  // OMBRES
+  // OMBRES — neutres (slate)
   // ══════════════════════════════════════════════════════
   static List<BoxShadow> get shadowNiveau1 => [
-    BoxShadow(color: const Color(0xFF1E4228).withValues(alpha: 0.06),
+    BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.06),
         blurRadius: 4, offset: const Offset(0, 2)),
   ];
   static List<BoxShadow> get shadowNiveau2 => [
-    BoxShadow(color: const Color(0xFF1E4228).withValues(alpha: 0.10),
+    BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.10),
         blurRadius: 12, offset: const Offset(0, 4)),
   ];
   static List<BoxShadow> get shadowNiveau3 => [
-    BoxShadow(color: const Color(0xFF1E4228).withValues(alpha: 0.15),
+    BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.15),
         blurRadius: 24, offset: const Offset(0, 8)),
   ];
 
   // ══════════════════════════════════════════════════════
-  // GRADIENTS
+  // GRADIENTS — bleu
   // ══════════════════════════════════════════════════════
   static const LinearGradient gradientHero = LinearGradient(
     begin: Alignment.topLeft, end: Alignment.bottomRight,
-    colors: [Color(0xFF122916), Color(0xFF1E4228)],
+    colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
   );
   static const LinearGradient gradientPrimary = LinearGradient(
     begin: Alignment.topLeft, end: Alignment.bottomRight,
-    colors: [Color(0xFF1E4228), Color(0xFF2D5E3A)],
+    colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
   );
   static const LinearGradient gradientOr = LinearGradient(
     begin: Alignment.topLeft, end: Alignment.bottomRight,
@@ -106,7 +104,7 @@ abstract class AppColors {
   );
   static const LinearGradient gradientSucces = LinearGradient(
     begin: Alignment.topCenter, end: Alignment.bottomCenter,
-    colors: [Color(0xFF1E4228), Color(0xFF2D5E3A)],
+    colors: [Color(0xFF15803D), Color(0xFF16A34A)],
   );
 
   // ══════════════════════════════════════════════════════
@@ -129,10 +127,10 @@ abstract class AppColors {
   // ══════════════════════════════════════════════════════
   // STATUTS TONTINE
   // ══════════════════════════════════════════════════════
-  static const Color tontineActive      = Color(0xFF1E4228);
-  static const Color tontineActiveBg    = Color(0xFFE2F0E6);
-  static const Color tontineCreation    = Color(0xFF1A56DB);
-  static const Color tontineCreationBg  = Color(0xFFEFF6FF);
+  static const Color tontineActive      = Color(0xFF16A34A);
+  static const Color tontineActiveBg    = Color(0xFFF0FDF4);
+  static const Color tontineCreation    = Color(0xFF2563EB);
+  static const Color tontineCreationBg  = Color(0xFFE8EEFD);
   static const Color tontineSuspendue   = Color(0xFFD97706);
   static const Color tontineSuspendueBg = Color(0xFFFFFBEB);
   static const Color tontineTerminee    = Color(0xFF9CA3AF);

@@ -18,7 +18,7 @@ class TontineCollecteurApp extends ConsumerWidget {
     });
 
     return MaterialApp.router(
-      title: 'TontinePro Collecteur',
+      title: 'TontineBénin Collecteur',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       routerConfig: router,

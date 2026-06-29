@@ -9,7 +9,8 @@ abstract class ApiConfig {
     const defined = String.fromEnvironment('API_BASE_URL');
     if (defined.isNotEmpty) return defined;
     if (Platform.isAndroid && _isEmulateur) return 'http://10.0.2.2:3000';
-    return 'https://rotting-serrated-acetone.ngrok-free.dev';
+    // Backend VPS via Tailscale Funnel (URL fixe gratuite)
+    return 'https://vps-tontinebenin.taila91a50.ts.net';
   }
 
   // Détecte si on tourne sur un émulateur Android (IP 10.0.2.15 = émulateur Google)

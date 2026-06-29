@@ -71,8 +71,12 @@ class InscriptionNotifier extends StateNotifier<AuthState> {
     } on DioException catch (e) {
       state = state.copyWith(loading: false, erreur: extraireMessageErreur(e));
       return false;
-    } catch (_) {
-      state = state.copyWith(loading: false, erreur: 'Erreur inattendue.');
+    } catch (e) {
+      final msg = e.toString().replaceFirst('Exception: ', '').trim();
+      state = state.copyWith(
+        loading: false,
+        erreur: msg.isEmpty ? 'Erreur inattendue.' : msg,
+      );
       return false;
     }
   }
@@ -128,8 +132,12 @@ class OtpNotifier extends StateNotifier<AuthState> {
     } on DioException catch (e) {
       state = state.copyWith(loading: false, erreur: extraireMessageErreur(e));
       return false;
-    } catch (_) {
-      state = state.copyWith(loading: false, erreur: 'Erreur inattendue.');
+    } catch (e) {
+      final msg = e.toString().replaceFirst('Exception: ', '').trim();
+      state = state.copyWith(
+        loading: false,
+        erreur: msg.isEmpty ? 'Erreur inattendue.' : msg,
+      );
       return false;
     }
   }
@@ -153,8 +161,12 @@ class CreerPinNotifier extends StateNotifier<AuthState> {
     } on DioException catch (e) {
       state = state.copyWith(loading: false, erreur: extraireMessageErreur(e));
       return false;
-    } catch (_) {
-      state = state.copyWith(loading: false, erreur: 'Erreur inattendue.');
+    } catch (e) {
+      final msg = e.toString().replaceFirst('Exception: ', '').trim();
+      state = state.copyWith(
+        loading: false,
+        erreur: msg.isEmpty ? 'Erreur inattendue.' : msg,
+      );
       return false;
     }
   }
@@ -183,8 +195,12 @@ class ConnexionNotifier extends StateNotifier<AuthState> {
     } on DioException catch (e) {
       state = state.copyWith(loading: false, erreur: extraireMessageErreur(e));
       return false;
-    } catch (_) {
-      state = state.copyWith(loading: false, erreur: 'Erreur inattendue.');
+    } catch (e) {
+      final msg = e.toString().replaceFirst('Exception: ', '').trim();
+      state = state.copyWith(
+        loading: false,
+        erreur: msg.isEmpty ? 'Erreur inattendue.' : msg,
+      );
       return false;
     }
   }

@@ -215,14 +215,22 @@ class ClientCard extends StatelessWidget {
                           color: AppColors.attention.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(99),
                         ),
-                        child: const Text(
-                          '⚡ PRIORITÉ',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 8,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.attention,
-                          ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.bolt_rounded,
+                                size: 11, color: AppColors.attention),
+                            SizedBox(width: 2),
+                            Text(
+                              'PRIORITÉ',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 8,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.attention,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                   ],

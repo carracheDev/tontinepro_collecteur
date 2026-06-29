@@ -18,7 +18,7 @@ class BiometrieService {
 
   static Future<bool> authentifier({
     String raison =
-        'Confirmez votre identité pour accéder à TontinePro Collecteur',
+        'Confirmez votre identité pour accéder à TontineBénin Collecteur',
   }) async {
     try {
       return await _auth.authenticate(
