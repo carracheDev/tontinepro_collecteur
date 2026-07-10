@@ -72,19 +72,28 @@ abstract class AppColors {
   static const Color infoLight     = Color(0xFFEFF6FF);
 
   // ══════════════════════════════════════════════════════
-  // OMBRES — neutres (slate)
+  // OMBRES — douces, teintées bleu marque (look fintech premium)
+  // Double couche : une ombre proche nette + une ombre large diffuse.
   // ══════════════════════════════════════════════════════
+  static const Color _ombre = Color(0xFF1E3A8A); // bleu nuit = teinte marque
+
   static List<BoxShadow> get shadowNiveau1 => [
-    BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.06),
-        blurRadius: 4, offset: const Offset(0, 2)),
+    BoxShadow(color: _ombre.withValues(alpha: 0.05),
+        blurRadius: 2, offset: const Offset(0, 1)),
+    BoxShadow(color: _ombre.withValues(alpha: 0.05),
+        blurRadius: 10, offset: const Offset(0, 4)),
   ];
   static List<BoxShadow> get shadowNiveau2 => [
-    BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.10),
-        blurRadius: 12, offset: const Offset(0, 4)),
+    BoxShadow(color: _ombre.withValues(alpha: 0.06),
+        blurRadius: 4, offset: const Offset(0, 2)),
+    BoxShadow(color: _ombre.withValues(alpha: 0.08),
+        blurRadius: 20, offset: const Offset(0, 8)),
   ];
   static List<BoxShadow> get shadowNiveau3 => [
-    BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.15),
-        blurRadius: 24, offset: const Offset(0, 8)),
+    BoxShadow(color: _ombre.withValues(alpha: 0.10),
+        blurRadius: 8, offset: const Offset(0, 4)),
+    BoxShadow(color: _ombre.withValues(alpha: 0.14),
+        blurRadius: 32, offset: const Offset(0, 16)),
   ];
 
   // ══════════════════════════════════════════════════════

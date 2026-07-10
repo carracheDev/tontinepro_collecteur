@@ -289,14 +289,6 @@ class _HeroCard extends ConsumerWidget {
           (d?.stats.visites.toString() ?? '—', 'Visités'),
           (taux, 'Taux'),
         ];
-      case RoleCollecteur.agent:
-        final d = ref.watch(_homeCommissionProvider).value;
-        final nbClients = ref.watch(clientsDuJourProvider).value?.stats.total;
-        return [
-          (nbClients?.toString() ?? '—', 'Clients'),
-          (d != null ? _montantCourt(d.soldeDisponible) : '—', 'Commissions'),
-          ('1,5%', 'Taux'),
-        ];
       case RoleCollecteur.admin:
         final d = ref.watch(_homeZoneKpisProvider).value;
         return [
@@ -307,11 +299,6 @@ class _HeroCard extends ConsumerWidget {
       default:
         return [('—', 'Clients'), ('—', 'Visités'), ('—', 'Taux')];
     }
-  }
-
-  String _montantCourt(num val) {
-    if (val >= 1000) return '${(val / 1000).toStringAsFixed(0)}k F';
-    return '$val F';
   }
 }
 
@@ -345,76 +332,6 @@ class _LignesDecoWhx extends CustomPainter {
 
   @override
   bool shouldRepaint(_) => false;
-}
-
-class _HeroBadge extends StatelessWidget {
-  final String label;
-  final Color bgColor;
-  const _HeroBadge(this.label, this.bgColor);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(99),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-}
-
-class _KpiBox extends StatelessWidget {
-  final String valeur;
-  final String label;
-  const _KpiBox({required this.valeur, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(
-            valeur,
-            style: const TextStyle(
-              fontFamily: 'Nunito',
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 3),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFFD1FAE5),
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _QuickActionsGrid extends ConsumerWidget {
@@ -562,6 +479,7 @@ class _AgentDashboard extends ConsumerWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppColors.bordure),
+            boxShadow: AppColors.shadowNiveau1,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -695,130 +613,6 @@ class _AgentDashboard extends ConsumerWidget {
   }
 }
 
-class _IndependantDashboard extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final soldeAsync = ref.watch(_homeCommissionProvider);
-    return Column(
-      children: [
-        soldeAsync.when(
-          data: (s) => Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.bordure),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Revenus du mois', style: AppTextStyles.titre3),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(99),
-                      ),
-                      child: const Text(
-                        'Pack Pro',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  Formatters.montant(s.totalMois),
-                  style: const TextStyle(
-                    fontFamily: 'Nunito',
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.texte,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Disponible : ${Formatters.montant(s.soldeDisponible)}',
-                  style: AppTextStyles.corpsSecond,
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () => context.go(Routes.homeFinances),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'VOIR COMMISSIONS',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w800,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          loading: () => Container(
-            height: 160,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.bordure),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            ),
-          ),
-          error: (_, _) => const SizedBox.shrink(),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _MiniCard(
-                label: 'Tontines groupes',
-                sousTitre: 'Gérer mes groupes',
-                icon: Icons.groups_outlined,
-                onTap: () => context.go(Routes.homeClients),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _MiniCard(
-                label: 'Micro-crédits',
-                sousTitre: 'Demandes clients',
-                icon: Icons.account_balance_outlined,
-                onTap: () => context.go(Routes.homeClients),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
 class _SuperviseurDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -831,6 +625,7 @@ class _SuperviseurDashboard extends ConsumerWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppColors.bordure),
+            boxShadow: AppColors.shadowNiveau1,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -929,6 +724,7 @@ class _SuperviseurDashboard extends ConsumerWidget {
   }
 }
 
+
 class _StatMini extends StatelessWidget {
   final String valeur;
   final String label;
@@ -973,52 +769,6 @@ class _StatMini extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MiniCard extends StatelessWidget {
-  final String label;
-  final String sousTitre;
-  final IconData icon;
-  final VoidCallback onTap;
-  const _MiniCard({
-    required this.label,
-    required this.sousTitre,
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.bordure),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: AppColors.primary, size: 22),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: AppColors.texte,
-              ),
-            ),
-            Text(sousTitre, style: AppTextStyles.caption),
-          ],
-        ),
       ),
     );
   }

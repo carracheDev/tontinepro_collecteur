@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
+import '../theme/app_tokens.dart';
 
 enum AppCardNiveau { un, deux, trois }
 
-class AppCard extends StatelessWidget {
+/// Carte standard TontineBénin — fond blanc, ombre douce teintée marque,
+/// bordure subtile. Si [onTap] est fourni, la carte s'enfonce légèrement
+/// à l'appui (retour tactile + micro-animation) pour un ressenti premium.
+class AppCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final VoidCallback? onTap;
@@ -18,12 +23,19 @@ class AppCard extends StatelessWidget {
     this.padding,
     this.onTap,
     this.couleur,
-    this.borderRadius = 18,
+    this.borderRadius = AppTokens.rMd,
     this.avecBordure = true,
     this.niveau = AppCardNiveau.un,
   });
 
-  List<BoxShadow> get _ombre => switch (niveau) {
+  @override
+  State<AppCard> createState() => _AppCardState();
+}
+
+class _AppCardState extends State<AppCard> {
+  bool _presse = false;
+
+  List<BoxShadow> get _ombre => switch (widget.niveau) {
         AppCardNiveau.un => AppColors.shadowNiveau1,
         AppCardNiveau.deux => AppColors.shadowNiveau2,
         AppCardNiveau.trois => AppColors.shadowNiveau3,
@@ -31,29 +43,38 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
+    final card = AnimatedContainer(
+      duration: AppTokens.dFast,
+      curve: AppTokens.curve,
       width: double.infinity,
-      padding: padding ?? const EdgeInsets.all(16),
+      padding: widget.padding ?? const EdgeInsets.all(AppTokens.s16),
       decoration: BoxDecoration(
-        color: couleur ?? AppColors.blanc,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: avecBordure
+        color: widget.couleur ?? AppColors.blanc,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        border: widget.avecBordure
             ? Border.all(color: AppColors.bordure.withValues(alpha: 0.7))
             : null,
-        boxShadow: _ombre,
+        boxShadow: _presse
+            ? AppColors.shadowNiveau1
+            : _ombre,
       ),
-      child: child,
+      child: widget.child,
     );
 
-    if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
-        splashColor: AppColors.primary.withValues(alpha: 0.06),
-        highlightColor: AppColors.primary.withValues(alpha: 0.03),
+    if (widget.onTap == null) return card;
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _presse = true),
+      onTapUp: (_) => setState(() => _presse = false),
+      onTapCancel: () => setState(() => _presse = false),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.onTap!();
+      },
+      child: AnimatedScale(
+        scale: _presse ? 0.97 : 1.0,
+        duration: AppTokens.dFast,
+        curve: AppTokens.curve,
         child: card,
       ),
     );
