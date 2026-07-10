@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../router/app_router.dart';
 import '../../data/models/client_models.dart';
 
-class ClientCard extends StatelessWidget {
+class ClientCard extends StatefulWidget {
   final ClientResume client;
   final VoidCallback onTap;
 
   const ClientCard({super.key, required this.client, required this.onTap});
+
+  @override
+  State<ClientCard> createState() => _ClientCardState();
+}
+
+class _ClientCardState extends State<ClientCard> {
+  bool _presse = false;
+  ClientResume get client => widget.client;
 
   Color get _couleurAvatar {
     const palette = [
@@ -31,19 +41,30 @@ class ClientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.bordure.withValues(alpha: 0.7)),
-        boxShadow: AppColors.shadowNiveau1,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _presse = true),
+      onTapUp: (_) => setState(() => _presse = false),
+      onTapCancel: () => setState(() => _presse = false),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.onTap();
+      },
+      child: AnimatedScale(
+        scale: _presse ? 0.98 : 1.0,
+        duration: AppTokens.dFast,
+        curve: AppTokens.curve,
+        child: AnimatedContainer(
+          duration: AppTokens.dFast,
+          curve: AppTokens.curve,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border:
+                Border.all(color: AppColors.bordure.withValues(alpha: 0.7)),
+            boxShadow: _presse
+                ? AppColors.shadowNiveau1
+                : AppColors.shadowNiveau2,
+          ),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -261,7 +282,7 @@ class ClientCard extends StatelessWidget {
                         bgColor: Colors.white,
                         txtColor: AppColors.texte,
                         bordered: true,
-                        onTap: onTap,
+                        onTap: widget.onTap,
                       ),
                     ),
                     const SizedBox(width: 8),
